@@ -36,16 +36,5 @@ A simple, multi-turn CLI chatbot:
    python main.py
 ```
 
-## Notes / lessons learned
 
-- Groq deprecated `llama-3.3-70b-versatile` for free-tier use partway through this build, which surfaced a real lesson in model-lifecycle management for anyone building on third-party LLM APIs — model IDs aren't permanent, and production code should treat them as configurable rather than hardcoded.
 
-## Roadmap this fits into
-
-1. **Claude API fundamentals (this project)** — CLI chatbot
-2. Tool use / function calling — Weather + Calculator agent
-3. MCP (Model Context Protocol) — small MCP server
-4. Claude Code hands-on — practicing on own repos
-5. Agentic design patterns — verify-loop mini-project
-6. Flagship project — rebuild an n8n calendar-booking agent using the Claude API directly with real tool use
-7. Documentation for GitHub/LinkedIn
