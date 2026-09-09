@@ -1,6 +1,6 @@
 # Groq CLI Chatbot
 
-A command-line chatbot built as Step 1 of a hands-on roadmap to learn Claude/agentic AI architecture — starting with API fundamentals before moving into tool use, MCP, and multi-step agent design.
+A command-line chatbot built using Claude/agentic AI architecture 
 
 ## Why Groq instead of Claude?
 
