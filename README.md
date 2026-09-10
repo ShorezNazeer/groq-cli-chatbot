@@ -35,6 +35,30 @@ A simple, multi-turn CLI chatbot:
 ```bash
    python main.py
 ```
+## Step 2: Tool Use / Function Calling — `tool_agent.py`
 
+Extends the base chatbot with tool use (function calling). The model can request
+that a real function be run — instead of guessing an answer — then uses the
+actual result to respond.
+
+**Tools implemented:**
+- `get_weather(city)` — fetches live weather data from [wttr.in](https://wttr.in)
+- `calculate(expression)` — evaluates a math expression
+
+**How it works:**
+1. Send the user's message to the model along with a schema describing the
+   available tools.
+2. If the model requests a tool call, run the real Python function and send
+   the result back to the model.
+3. The model uses that real data to generate its final natural-language reply.
+
+This demonstrates the two-call tool-use pattern used by most LLM agent frameworks —
+the model decides *what* to call, the code executes it, and the result is fed
+back for a grounded final answer.
+
+Run it with:
+\```bash
+python tool_agent.py
+\```
 
 
