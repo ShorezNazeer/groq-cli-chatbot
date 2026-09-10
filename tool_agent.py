@@ -5,7 +5,10 @@ from groq import Groq
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9e3f1a41666b5415c02b9f7b78c9cf37dd0f855d
 def get_weather(city: str) -> str:
     """Fetch current weather for a city using wttr.in (no API key needed)."""
     try:
@@ -22,14 +25,21 @@ def calculate(expression: str) -> str:
         return str(result)
     except Exception as e:
         return f"Error evaluating expression: {e}"
+<<<<<<< HEAD
 
 
+=======
+        
+>>>>>>> 9e3f1a41666b5415c02b9f7b78c9cf37dd0f855d
 available_functions = {
     "get_weather": get_weather,
     "calculate": calculate,
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9e3f1a41666b5415c02b9f7b78c9cf37dd0f855d
 tools = [
     {
         "type": "function",
@@ -67,7 +77,10 @@ tools = [
     },
 ]
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9e3f1a41666b5415c02b9f7b78c9cf37dd0f855d
 messages = [
     {"role": "system", "content": "You are a helpful assistant with access to weather and calculator tools."}
 ]
@@ -81,6 +94,14 @@ while True:
 
     messages.append({"role": "user", "content": user_input})
 
+<<<<<<< HEAD
+=======
+    response = client.chat.completions.create(
+        model="openai/gpt-oss-120b",
+        messages=messages,
+        tools=tools,
+    )
+>>>>>>> 9e3f1a41666b5415c02b9f7b78c9cf37dd0f855d
 
     while True:
         response = client.chat.completions.create(
@@ -97,6 +118,10 @@ while True:
             messages.append({"role": "assistant", "content": response_message.content})
             break  
 
+<<<<<<< HEAD
+=======
+    if tool_calls:
+>>>>>>> 9e3f1a41666b5415c02b9f7b78c9cf37dd0f855d
         messages.append(response_message)
 
         for tool_call in tool_calls:
@@ -113,6 +138,20 @@ while True:
                 "content": function_result,
             })
 
+<<<<<<< HEAD
+=======
+        second_response = client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            messages=messages,
+        )
+        final_message = second_response.choices[0].message.content
+        print(f"Bot: {final_message}\n")
+        messages.append({"role": "assistant", "content": final_message})
+
+    else:
+        print(f"Bot: {response_message.content}\n")
+        messages.append({"role": "assistant", "content": response_message.content})
+>>>>>>> 9e3f1a41666b5415c02b9f7b78c9cf37dd0f855d
         
 
 
