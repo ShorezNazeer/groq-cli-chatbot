@@ -3,6 +3,7 @@ import json
 import subprocess
 from pathlib import Path
 from groq import Groq
+from agent_patterns import call_groq_with_backoff, reflect_on_result
 
 
 MODEL = "openai/gpt-oss-120b"       
@@ -52,31 +53,37 @@ def read_file(path: str) -> str:
     return target.read_text(errors="replace")
 
 
-def write_file(path: str, content: str) -> str:
+def write_file(path: str, content: str) -> dict:
     target = _safe_path(path)
     preview = content if len(content) < 400 else content[:400] + "\n...(truncated)"
     if not _confirm(f"Write to '{path}':\n---\n{preview}\n---"):
-        return "User declined this write. Do not retry the same write; ask what to do differently."
+        return {"success": False, "path": path, "bytes_written": 0, "detail": "User declined this write. Do not retry the same write; ask what to do differently."}
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(content)
-    return f"Wrote {len(content)} chars to {path}."
+    written = target.read_text()
+    success = written == content
+    detail = "" if success else "content mismatch after write"
+    return {"success": success, "path": path, "bytes_written": len(written), "detail": detail}
 
 
-def run_shell_command(command: str) -> str:
+def run_shell_command(command: str) -> dict:
     if _is_denied(command):
-        return f"Error: command blocked by denylist: {command}"
+        return {"success": False, "exit_code": None, "stdout": "", "stderr": f"Error: command blocked by denylist: {command}"}
     if not _confirm(f"Run shell command: {command}"):
-        return "User declined this command. Do not retry the same command."
+        return {"success": False, "exit_code": None, "stdout": "", "stderr": "User declined this command. Do not retry the same command."}
     try:
         result = subprocess.run(
             command, shell=True, cwd=SANDBOX, capture_output=True,
             text=True, timeout=15,
         )
-        output = result.stdout + result.stderr
-        return output.strip() or "(no output)"
+        return {
+            "success": result.returncode == 0,
+            "exit_code": result.returncode,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+        }
     except subprocess.TimeoutExpired:
-        return "Error: command timed out."
-
+        return {"success": False, "exit_code": None, "stdout": "", "stderr": "Error: command timed out."}
 
 TOOL_IMPL = {
     "list_directory": list_directory,
@@ -158,8 +165,8 @@ def run_agent(messages: list, task: str) -> list:
     took_action = False
 
     for iteration in range(MAX_ITERATIONS):
-        response = client.chat.completions.create(
-            model=MODEL, messages=messages, tools=TOOL_SCHEMAS, tool_choice="auto",
+        response = call_groq_with_backoff(
+            client, model=MODEL, messages=messages, tools=TOOL_SCHEMAS, tool_choice="auto",
         )
         msg = response.choices[0].message
         messages.append(msg.model_dump(exclude_none=True))
@@ -180,8 +187,10 @@ def run_agent(messages: list, task: str) -> list:
             args = json.loads(call.function.arguments or "{}")
             print(f"\n[tool call] {name}({args})")
             result = TOOL_IMPL[name](**args)
-            print(f"[tool result] {result[:300]}")
-            messages.append({"role": "tool", "tool_call_id": call.id, "name": name, "content": result})
+            print(f"[tool result] {str(result)[:300]}")
+            reflection = reflect_on_result(name, result)
+            tool_message_content = f"{reflection}\n\n{json.dumps(result)}"
+            messages.append({"role": "tool", "tool_call_id": call.id, "name": name, "content": tool_message_content})
     else:
         print("\n[stopped: reached MAX_ITERATIONS without the agent finishing]")
 
