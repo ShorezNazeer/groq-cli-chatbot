@@ -11,7 +11,7 @@ A hands-on project that builds an AI agent step by step on Groq's free tier, fro
 | 3 | MCP server exposing sandboxed `list_directory`, `read_file` and `run_shell_command`, with a command denylist | [`step3_mcp_server/`](step3_mcp_server/) |
 | 4 | Agentic coding CLI: plan → act → observe loop, `write_file`, human confirmation before writes and shell commands, history kept across tasks | [`mini_claude_code.py`](mini_claude_code.py), [notes](README_mini_claude_code.md) |
 | 5 | Robustness patterns: retry-with-backoff, reflection on tool results, context compression | [`agent_patterns.py`](agent_patterns.py), [`test_backoff.py`](test_backoff.py) |
-| 6 | *Planned:* rebuild a Google Calendar booking agent directly on the API | not started |
+| 6 | Google Calendar agent: book, list, check and delete events in plain English, rebuilt from an n8n workflow. OAuth with the narrowest scope, confirmation before writes, today's date injected into the prompt | [`step6_calendar_agent/`](step6_calendar_agent/), [notes](step6_calendar_agent/README.md) |
 
 ## Setup
 
